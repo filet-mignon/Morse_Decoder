@@ -34,6 +34,96 @@ char message[20];
 int m_index = 0;
 char l3etter;
 
+char decode(int16_t* morse){
+	if(morse[1] == 0){
+		if(morse[2] == -1)
+			return 'e';
+		else if(morse[2] == 0){
+			if(morse[3] == -1)
+				return 'i';
+			else if(morse[3] == 0){
+				if(morse[4] == -1)
+					return 's';
+				else if(morse[4] == 0)
+					return 'h';
+				else
+					return 'v';
+			}
+			else{
+				if(morse[4] == -1)
+					return 'u';
+				else if (morse[4] == 0)
+					return 'f';
+				else
+					return '?';
+			}	
+		}
+		else{
+			if(morse[3] == -1)
+				return 'a';
+			else if(morse[3] == 0){
+				if(morse[4] == -1)
+					return 'r';
+				else if(morse[4] == 0)
+					return 'l';
+				else
+					return '?';
+			}
+			else{
+				if(morse[4] == -1)
+					return 'w';
+				if(morse[4] == 0)
+					return 'p';
+				else
+					return 'j';
+			}
+		}
+	}
+	else{
+		if(morse[2] == -1)
+			return 't';
+		else if(morse[2] == 0){
+			if(morse[3] == -1)
+				return 'n';
+			if(morse[3] == 0){
+				if(morse[4] == -1)
+					return 'd';
+				else if(morse[4] == 0)
+					return 'b';
+				else
+					return '?';
+			}
+			else{
+				if(morse[4] == -1)
+					return 'k';
+				else if(morse[4] == 0)
+					return 'c';
+				else
+					return 'y';
+			}
+		}
+		else{
+			if(morse[3] == -1){
+				return 'm';
+			}
+			else if(morse[3] == 0){
+				if(morse[4] == -1)
+					return 'g';
+				else if(morse[4] == 0)
+					return 'z';
+				else
+					return 'q';
+			}
+			else{
+				if(morse[4] == -1)
+					return 'o';
+				else
+					return '?';
+			}
+		}
+	}
+}
+
 interrupt void interrupt4(void) // interrupt service routine
 {
 	if(record == 1){
