@@ -13,8 +13,8 @@
             <device HW_revision="1" XML_version="1.2" description="OMAPL138 - ARM9 and C674x Floating point DSP with PRU" id="OMAPL138" partnum="OMAPL138" simulation="no">
                     <router HW_revision="" XML_version="1.2" description="" id="device_0" isa="ICEPICK_C">
                         <subpath id="device_1">
-                            <cpu HW_revision="" XML_version="1.2" description="" deviceSim="false" id="device_2" isa="TMS320C674X">
-                                <property Type="filepathfield" Value="..\..\L138_support\OMAP-L138_LCDK.gel" id="GEL File"/>
+                            <cpu HW_revision="" XML_version="1.2" desc="C674X_0" description="" deviceSim="false" id="device_2" isa="TMS320C674X">
+                                <property Type="filepathfield" Value="..\..\..\MyProjects\L138_support\OMAP-L138_LCDK.gel" id="GEL File"/>
                             </cpu>
                         </subpath>
                     </router>

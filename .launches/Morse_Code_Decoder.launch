@@ -5,7 +5,7 @@
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROGRAM.Texas Instruments XDS100v2 USB Emulator/C674X_0" value="${build_artifact:Morse_Code_Decoder}"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROJECT.Texas Instruments XDS100v2 USB Emulator/C674X_0" value="Morse_Code_Decoder"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_TARGET_CONFIG" value="${target_config_active_default:Morse_Code_Decoder}"/>
-<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.Texas Instruments XDS100v2 USB Emulator/C674X_0" value="C:/Users\EE113D\MyProjects\Morse_Code_Decoder\Debug\Morse_Code_Decoder.out"/>
+<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.Texas Instruments XDS100v2 USB Emulator/C674X_0" value="C:/Users\EE113D\Desktop\Morse_Code_Decoder-8ce5e13ddd756554dc42a061274f5cc8725c604f\Debug\Morse_Code_Decoder.out"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/Morse_Code_Decoder"/>
 </listAttribute>
