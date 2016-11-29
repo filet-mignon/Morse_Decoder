@@ -21,7 +21,7 @@ int k;
 int16_t left_sample;
 
 float circbuf[framelen];
-float avgEn = 0;
+float avgEn;
 float temp = 0;
 
 int circ_index = 0;
@@ -152,11 +152,10 @@ interrupt void interrupt4(void) // interrupt service routine
 		}
 		//have found the first high point
 		else{
-			if(counter < framelen){
+			if(counter != 0){
 				avgEn += temp;
 			}
 			else{
-				counter = 0;
 				if(avgEn > THRESHOLD){
 					if(morseCounter >= 0){
 						morseCounter++;
@@ -203,7 +202,7 @@ interrupt void interrupt4(void) // interrupt service routine
 			}
 		}
 
-		counter = (counter+1);
+		counter = (counter+1)%framelen;
 	}
 
 	else{
@@ -217,6 +216,7 @@ interrupt void interrupt4(void) // interrupt service routine
 int main(void)
 {
 	int i, j;
+	avgEn = 0;
 	state_message = state_0;
 
 	//buffer is for dots and dashes
@@ -230,7 +230,7 @@ int main(void)
 	for(i = 0; i < 20; i++)
 		message[i] = ' ';
 
-	L138_initialise_intr(FS_8000_HZ,ADC_GAIN_0DB,DAC_ATTEN_0DB,LCDK_LINE_INPUT);
+	L138_initialise_intr(FS_8000_HZ,ADC_GAIN_24DB,DAC_ATTEN_0DB,LCDK_MIC_INPUT);
 	while(1){
 		if(reset == 1)
 		{
