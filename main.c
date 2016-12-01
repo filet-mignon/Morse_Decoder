@@ -8,27 +8,34 @@
 #include <math.h>
 #include "L138_LCDK_aic3106_init.h"
 
-#define THRESHOLD 200
-#define framelen 320
+#define THRESHOLD 22000
+#define framelen 9600
 #define HIGH 1
 #define LOW 0
+#define k 1
 
 int counter = 0;
+int morseCounter = 0;
+int16_t flag = LOW;
+
 volatile int record = 0;
 volatile int reset = 0;
-int k;
 
 int16_t left_sample;
 
 float circbuf[framelen];
+char message[64];
+int16_t buffer[4];
+int16_t sym_buf[64];
+
 float avgEn;
 float temp = 0;
 
 int circ_index = 0;
-int morseCounter = 0;
 int let_index = 0;
-int16_t state = LOW;
-int16_t flag = LOW;
+int m_index = 0;
+int s_index = 0;
+
 int16_t test[framelen];
 
 char* state_message;
@@ -36,12 +43,7 @@ char* state_0 = "No active task";
 char* state_1 = "Recording";
 char* state_2 = "Analyzing";
 
-char message[64];
-int m_index = 0;
 char letter;
-
-int16_t buffer[4];
-
 int count = 0;
 
 char decode(int16_t* morse){
@@ -140,69 +142,35 @@ interrupt void interrupt4(void) // interrupt service routine
 		left_sample = input_left_sample();
 		test[counter] = left_sample;
 		temp = left_sample*left_sample / 1000000.0;
+		avgEn = avgEn + temp - circbuf[counter];
+		circbuf[counter] = temp;
 		//Have not identified the first word yet
 		if(flag == LOW){
-			avgEn = avgEn + temp - circbuf[counter];
-			circbuf[counter] = temp;
 			if(avgEn > THRESHOLD){
 				flag = HIGH;
-				morseCounter = 1;
-				avgEn = 0;
+				counter = 0;
+				sym_buf[s_index] = 1;
+				s_index++;
 			}
 		}
 		//have found the first high point
 		else{
-			if(counter != 0){
-				avgEn += temp;
-			}
-			else{
+			if (counter == 0){
 				if(avgEn > THRESHOLD){
-					if(morseCounter >= 0){
-						morseCounter++;
-					}
-					else{ //last entry was a pause
-						if(morseCounter > -2){ //short pause, end of symbol
-						}
-						else if(morseCounter > -4){ //medium pause, end of letter
-							message[m_index] = decode(buffer);
-							int i;
-							for(i = 0; i < 4; i++)
-								buffer[i] = -1;
-							m_index = (m_index+1)%64;
-						}
-						else{
-							//long pause, end of word (add space)
-							message[m_index] = ' ';
-							m_index = (m_index+1)%64;
-						}
-						morseCounter = 1;
-					}
-
+					//buffer[let_index]++;
+					sym_buf[s_index] = 1;
 				}
-
-				//when avgEn is lower than threshold, check the counter
-				//If morseCounter is 1, it is a dot. If morseCounter is 3, it is a dash.
-
-				if(avgEn < THRESHOLD){
-					if(morseCounter <= 0){ //previously was a pause
-						morseCounter--;
-					}
-					else{ //previous entry was either dot or dash
-						if(morseCounter <= 2) //dot
-							buffer[let_index] = 0;
-						else if(morseCounter > 2) //dash
-							buffer[let_index] = 1;
-						let_index++;
-						morseCounter = -1;
-
-					}
-
+				else{
+					sym_buf[s_index] = 0;
 				}
-				avgEn = 0;
+				s_index++;
 			}
 		}
-
 		counter = (counter+1)%framelen;
+
+
+
+
 	}
 
 	else{
@@ -221,13 +189,16 @@ int main(void)
 
 	//buffer is for dots and dashes
 	for(j = 0; j < 4; j++)
-		buffer[j] = 1;
+		buffer[j] = -1;
 
 	//circbuf is for the avg energy
 	for(j = 0; j < framelen; j++)
 		circbuf[j] = 0;
 
-	for(i = 0; i < 20; i++)
+	for(j = 0; j < 64; j++)
+			sym_buf[j] = -1;
+
+	for(i = 0; i < 64; i++)
 		message[i] = ' ';
 
 	L138_initialise_intr(FS_8000_HZ,ADC_GAIN_24DB,DAC_ATTEN_0DB,LCDK_MIC_INPUT);
@@ -240,6 +211,16 @@ int main(void)
 			state_message = state_0;
 			flag = LOW;
 			reset = 0;
+			circ_index = 0;
+			s_index = 0;
+			for(j = 0; j < framelen; j++)
+					circbuf[j] = 0;
+			let_index = 0;
+			m_index = 0;
+			for(i = 0; i < 64; i++)
+					message[i] = ' ';
+			for(j = 0; j < 64; j++)
+					sym_buf[j] = -1;
 		}
 	}
 
