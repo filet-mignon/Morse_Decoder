@@ -9,6 +9,7 @@
 #include "L138_LCDK_aic3106_init.h"
 
 #define THRESHOLD 32000
+#define BUFLEN 4
 #define framelen 960
 #define HIGH 1
 #define LOW 0
@@ -17,6 +18,7 @@
 int counter = 0;
 int morseCounter = 0;
 int16_t flag = LOW;
+int trigger = 0;
 
 volatile int record = 0;
 volatile int reset = 0;
@@ -25,7 +27,7 @@ int16_t left_sample;
 
 float circbuf[framelen];
 char message[64];
-int16_t buffer[4];
+int16_t buffer[BUFLEN];
 int16_t sym_buf[64];
 
 float avgEn;
@@ -157,11 +159,23 @@ interrupt void interrupt4(void) // interrupt service routine
 		else{
 			if (counter == 0){
 				if(avgEn > k*THRESHOLD){
-					//buffer[let_index]++;
+					buffer[let_index]++;
 					sym_buf[s_index] = 1;
 				}
 				else{
 					sym_buf[s_index] = 0;
+					if(buffer[let_index] != -1)
+						let_index++;
+					else
+						trigger++;
+					if(trigger > 1){
+						message[m_index] = decode(buffer);
+						int i;
+						for(i = 0; i < BUFLEN; i++){
+							buffer[i] = 0;
+						}
+						m_index++;
+					}
 				}
 				s_index++;
 			}
@@ -185,7 +199,7 @@ int main(void)
 	state_message = state_0;
 
 	//buffer is for dots and dashes
-	for(j = 0; j < 4; j++)
+	for(j = 0; j < BUFLEN; j++)
 		buffer[j] = -1;
 
 	//circbuf is for the avg energy
@@ -206,6 +220,7 @@ int main(void)
 			avgEn = 0;
 			counter = 0;
 			state_message = state_0;
+			trigger = 0;
 			flag = LOW;
 			reset = 0;
 			circ_index = 0;
