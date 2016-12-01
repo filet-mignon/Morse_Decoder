@@ -144,6 +144,7 @@ char decode(int16_t* morse){
 interrupt void interrupt4(void) // interrupt service routine
 {
 	if(record == 1){
+		state_message = state_1;
 		left_sample = input_left_sample();
 		test[counter] = left_sample;
 		temp = left_sample*left_sample / 10000000.0;
@@ -173,7 +174,17 @@ interrupt void interrupt4(void) // interrupt service routine
 					if(trigger > 9){
 						record = 0;
 					}
-					if(trigger > 1){
+					if(trigger > 6){
+						int i;
+						for(i = 0; i < BUFLEN; i++){
+							buffer[i] = -1;
+						}
+						for(i = 0; i < SYMLEN; i++)
+							sym_buf[i] = -1;
+						s_index = -1;
+						let_index = 0;
+					}
+					if(trigger > 2){
 						int i;
 						for(i = 0; i < SYMLEN; i++)
 						{
@@ -189,9 +200,11 @@ interrupt void interrupt4(void) // interrupt service routine
 						}
 						for(i = 0; i < SYMLEN; i++)
 							sym_buf[i] = -1;
+						s_index = -1;
 						let_index = 0;
+						if(message[m_index] != ' ')
+							trigger = 0;
 						m_index++;
-						trigger = 0;
 					}
 				}
 				s_index = (s_index+1)%SYMLEN;
