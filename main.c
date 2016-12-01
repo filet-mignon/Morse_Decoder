@@ -14,6 +14,7 @@
 #define HIGH 1
 #define LOW 0
 #define k 0.9
+#define SYMLEN 100
 
 int counter = 0;
 int morseCounter = 0;
@@ -28,7 +29,7 @@ int16_t left_sample;
 float circbuf[framelen];
 char message[64];
 int16_t buffer[BUFLEN];
-int16_t sym_buf[64];
+int16_t sym_buf[SYMLEN];
 
 float avgEn;
 float temp = 0;
@@ -152,6 +153,7 @@ interrupt void interrupt4(void) // interrupt service routine
 				flag = HIGH;
 				counter = 0;
 				sym_buf[s_index] = 1;
+				buffer[let_index]++;
 				s_index++;
 			}
 		}
@@ -159,25 +161,33 @@ interrupt void interrupt4(void) // interrupt service routine
 		else{
 			if (counter == 0){
 				if(avgEn > k*THRESHOLD){
-					buffer[let_index]++;
+					//buffer[let_index]++;
 					sym_buf[s_index] = 1;
 				}
 				else{
 					sym_buf[s_index] = 0;
-					if(buffer[let_index] != -1)
-						let_index++;
-					else
+					//if(buffer[let_index] != -1)
+					//	let_index++;
+					//else
 						trigger++;
 					if(trigger > 1){
-						message[m_index] = decode(buffer);
 						int i;
-						for(i = 0; i < BUFLEN; i++){
-							buffer[i] = 0;
+						for(i = 0; i < SYMLEN; i++)
+						{
+							if(sym_buf[i] == 1)
+								buffer[let_index]++;
+							else
+								let_index++;
 						}
+						message[m_index] = decode(buffer);
+						for(i = 0; i < BUFLEN; i++){
+							buffer[i] = -1;
+						}
+						let_index = 0;
 						m_index++;
 					}
 				}
-				s_index++;
+				s_index = (s_index+1)%SYMLEN;
 			}
 		}
 		counter = (counter+1)%framelen;
@@ -234,6 +244,8 @@ int main(void)
 			for(j = 0; j < 64; j++)
 					sym_buf[j] = -1;
 		}
+		if(m_index > SYMLEN)
+			reset = 1;
 	}
 
 }
