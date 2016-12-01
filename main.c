@@ -94,6 +94,8 @@ char decode(int16_t* morse){
 			}
 		}
 	}
+	else if (morse[0] == -1)
+		return ' ';
 	else{
 		if(morse[1] == -1)
 			return 't';
@@ -153,7 +155,6 @@ interrupt void interrupt4(void) // interrupt service routine
 				flag = HIGH;
 				counter = 0;
 				sym_buf[s_index] = 1;
-				//buffer[let_index]++;
 				s_index++;
 				//let_index++;
 			}
@@ -190,6 +191,7 @@ interrupt void interrupt4(void) // interrupt service routine
 							sym_buf[i] = -1;
 						let_index = 0;
 						m_index++;
+						trigger = 0;
 					}
 				}
 				s_index = (s_index+1)%SYMLEN;
