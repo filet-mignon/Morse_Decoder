@@ -8,11 +8,11 @@
 #include <math.h>
 #include "L138_LCDK_aic3106_init.h"
 
-#define THRESHOLD 22000
-#define framelen 9600
+#define THRESHOLD 32000
+#define framelen 960
 #define HIGH 1
 #define LOW 0
-#define k 1
+#define k 0.9
 
 int counter = 0;
 int morseCounter = 0;
@@ -141,7 +141,7 @@ interrupt void interrupt4(void) // interrupt service routine
 	if(record == 1){
 		left_sample = input_left_sample();
 		test[counter] = left_sample;
-		temp = left_sample*left_sample / 1000000.0;
+		temp = left_sample*left_sample / 10000000.0;
 		avgEn = avgEn + temp - circbuf[counter];
 		circbuf[counter] = temp;
 		//Have not identified the first word yet
@@ -156,7 +156,7 @@ interrupt void interrupt4(void) // interrupt service routine
 		//have found the first high point
 		else{
 			if (counter == 0){
-				if(avgEn > THRESHOLD){
+				if(avgEn > k*THRESHOLD){
 					//buffer[let_index]++;
 					sym_buf[s_index] = 1;
 				}
@@ -173,9 +173,6 @@ interrupt void interrupt4(void) // interrupt service routine
 
 	}
 
-	else{
-		counter = 0;
-	}
 
 	output_left_sample(0);
 
