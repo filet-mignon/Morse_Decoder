@@ -204,6 +204,8 @@ interrupt void interrupt4(void) // interrupt service routine
 						let_index = 0;
 						if(message[m_index] != ' ')
 							trigger = 0;
+						else if (message[m_index -1] == ' ')
+							m_index--;
 						m_index++;
 					}
 				}
@@ -211,9 +213,6 @@ interrupt void interrupt4(void) // interrupt service routine
 			}
 		}
 		counter = (counter+1)%framelen;
-
-
-
 
 	}
 
