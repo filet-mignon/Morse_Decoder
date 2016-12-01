@@ -153,8 +153,9 @@ interrupt void interrupt4(void) // interrupt service routine
 				flag = HIGH;
 				counter = 0;
 				sym_buf[s_index] = 1;
-				buffer[let_index]++;
+				//buffer[let_index]++;
 				s_index++;
+				//let_index++;
 			}
 		}
 		//have found the first high point
@@ -163,13 +164,14 @@ interrupt void interrupt4(void) // interrupt service routine
 				if(avgEn > k*THRESHOLD){
 					//buffer[let_index]++;
 					sym_buf[s_index] = 1;
+					trigger = 0;
 				}
 				else{
 					sym_buf[s_index] = 0;
-					//if(buffer[let_index] != -1)
-					//	let_index++;
-					//else
-						trigger++;
+					trigger++;
+					if(trigger > 9){
+						record = 0;
+					}
 					if(trigger > 1){
 						int i;
 						for(i = 0; i < SYMLEN; i++)
@@ -177,12 +179,15 @@ interrupt void interrupt4(void) // interrupt service routine
 							if(sym_buf[i] == 1)
 								buffer[let_index]++;
 							else
-								let_index++;
+								let_index = (let_index+1)%4;
+							//sym_buf[i] = -1;
 						}
 						message[m_index] = decode(buffer);
 						for(i = 0; i < BUFLEN; i++){
 							buffer[i] = -1;
 						}
+						for(i = 0; i < SYMLEN; i++)
+							sym_buf[i] = -1;
 						let_index = 0;
 						m_index++;
 					}
